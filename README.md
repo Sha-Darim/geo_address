@@ -27,9 +27,10 @@ geo_address:
 
 | property | Example | Result
 | ------------ | ------- | ------
+| use_timed | `true` | use timed updates
+| use_state | `true` | use state change updates
 | update_interval | `60` | how often to check for new position
 | update_period | `3600` | for how long back in time to check for changes
-| use_state | `true` | use state change updates
 
 
 

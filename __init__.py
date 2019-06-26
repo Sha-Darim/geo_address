@@ -21,17 +21,19 @@ DEPENDENCIES = ['device_tracker']
 DOMAIN = 'geo_address'
 ENTITY_ID_FORMAT = DOMAIN + '.{}'
 
+CONF_USE_STATE              = "use_state"
+CONF_USE_TIMER              = "use_timer"
 CONF_INTERVAL               = 'update_interval'
 CONF_PERIOD                 = 'update_period'
-CONF_USE_STATE              = "use_state"
 CONF_FIELDS_DISPLAY         = 'fields_display'
 CONF_FIELDS_DISPLAY_DEFAULT = "road village country state_district state postcode country country_code"
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
+        vol.Optional(CONF_USE_STATE): cv.boolean,
+        vol.Optional(CONF_USE_TIMER): cv.boolean,
         vol.Optional(CONF_INTERVAL): cv.string,
         vol.Optional(CONF_PERIOD): cv.string,
-        vol.Optional(CONF_USE_STATE): cv.boolean,
         vol.Optional(CONF_FIELDS_DISPLAY): cv.match_all
     })
 }, extra=vol.ALLOW_EXTRA)
@@ -45,7 +47,7 @@ async def async_setup(hass, config):
     async_call_later(hass, 1, geoaddress.create_defaults)
 
     # Use timed updates
-    if CONF_INTERVAL in config[DOMAIN]:
+    if CONF_USE_TIMER in config[DOMAIN] and config[DOMAIN].get(CONF_USE_TIMER) == True:
         async_track_time_interval(hass, geoaddress.update_address_time, timedelta(seconds=int(config[DOMAIN].get(CONF_INTERVAL))))
         _LOGGER.debug('- Using timed updates')
 
