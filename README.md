@@ -39,7 +39,7 @@ type: markdown
 
 <img src="docs/address_card.png" alt="Address card"/>
 
-##Example usage
+## Example usage
 <img src="docs/example.png" alt="Fredric address"/>
 Standard picture entity card and markdown below. 
 
