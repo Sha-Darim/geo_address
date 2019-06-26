@@ -1,10 +1,13 @@
 # geo_address
-===============
-A plugins to automatically lookup address information from device position.
+A plugin to automatically lookup address information using device_tracker position.
 
 The plugins will create new state information named after the existing device_trackers in Homeassistant.
 
+The plugin uses device trackers<br/>
 <img src="docs/device_trackers.png" alt="Device trackers"/>
+
+...to create address info<br/>
+<img src="docs/geo_address.png" alt="geo_address"/>
 
 ## Usage
 Add this to configuration.yaml
@@ -24,13 +27,34 @@ geo_address:
 
 
 
-
+## Implementation
 Example implementation in Lovelace. I've used Thomas Lovéns Lovelace module <a href="https://github.com/thomasloven/lovelace-markdown-mod">lovelace-markdown-mod</a> for this. 
 ```yaml
 type: markdown
   content: >
-    [[ geo_address.samsung9.attributes.road ]] [[ if(geo_address.samsung9.attributes.house_number != undefined, geo_address.samsung9.attributes.house_number, "") ]]
-    [[ if(geo_address.samsung9.attributes.city != undefined, geo_address.samsung9.attributes.city, "") ]] 
+    <h3>Adress</h3>
+    [[ geo_address.fredric.attributes.road ]] [[ if(geo_address.fredric.attributes.house_number != undefined, geo_address.fredric.attributes.house_number, "") ]]
+    [[ if(geo_address.fredric.attributes.city != undefined, geo_address.fredric.attributes.city, "") ]] 
 ```
 
+<img src="docs/address_card.png" alt="Address card"/>
+
+##Example usage
+<img src="docs/example.png" alt="Fredric address"/>
+Standard picture entity card and markdown below. 
+
+```yaml
+- type: picture-entity
+  entity: device_tracker.fredric
+  image: /local/lovelace/Fredric.jpg
+  show_name: false
+  
+- type: markdown
+  content: >
+    <h3>Adress</h3>
+    [[ geo_address.fredric.attributes.road ]] [[ if(geo_address.fredric.attributes.house_number != undefined, geo_address.fredric.attributes.house_number, "") ]]
+    [[ if(geo_address.fredric.attributes.city != undefined, geo_address.fredric.attributes.city, "") ]]  
+```
+
+In the screen dump above. I've used <a href="https://github.com/custom-cards/vertical-stack-in-card">vertical-stack-in-card</a> to be able to make a tighter fit between the the cards.
 
