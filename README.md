@@ -15,6 +15,10 @@ The plugins uses Nominatim from geopy.geocoder as the base for the reverse looku
 
 ## Usage
 
+### Copy files
+Create a folder named `geo_address` in custom_components. Copy __ _init_ __.py and manifest.json to that folder.
+
+### Set up configuration.yaml
 
 Add this to `configuration.yaml`
 
