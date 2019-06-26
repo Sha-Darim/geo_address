@@ -1,0 +1,10 @@
+{
+    "domain": "geo_address",
+    "name": "geo_address",
+    "documentation": "https://github.com/frippuz/geo_address",
+    "requirements": ["geopy==1.20.0"],
+    "dependencies": ["device_tracker"],
+    "codeowners": [
+        "@frippuz"
+    ]
+}
