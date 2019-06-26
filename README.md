@@ -9,8 +9,14 @@ The plugin uses device trackers<br/>
 ...to create address info<br/>
 <img src="docs/geo_address.png" alt="geo_address"/>
 
+
+The plugins uses Nominatim from geopy.geocoder as the base for the reverse lookups.
+
+
 ## Usage
-Add this to configuration.yaml
+
+
+Add this to `configuration.yaml`
 
 ```yaml
 geo_address:
@@ -33,8 +39,8 @@ Example implementation in Lovelace. I've used Thomas Lovéns Lovelace module <a 
 type: markdown
   content: >
     <h3>Adress</h3>
-    [[ geo_address.fredric.attributes.road ]] [[ if(geo_address.fredric.attributes.house_number != undefined, geo_address.fredric.attributes.house_number, "") ]]
-    [[ if(geo_address.fredric.attributes.city != undefined, geo_address.fredric.attributes.city, "") ]] 
+    [[ geo_address.fredric_fredric.attributes.road ]] [[ if(geo_address.fredric_fredric.attributes.house_number != undefined, geo_address.fredric_fredric.attributes.house_number, "") ]]
+    [[ geo_address.fredric_fredric.attributes.city ]] 
 ```
 
 <img src="docs/address_card.png" alt="Address card"/>
@@ -44,17 +50,26 @@ type: markdown
 Standard picture entity card and markdown below. 
 
 ```yaml
-- type: picture-entity
-  entity: device_tracker.fredric
-  image: /local/lovelace/Fredric.jpg
-  show_name: false
-  
-- type: markdown
-  content: >
-    <h3>Adress</h3>
-    [[ geo_address.fredric.attributes.road ]] [[ if(geo_address.fredric.attributes.house_number != undefined, geo_address.fredric.attributes.house_number, "") ]]
-    [[ if(geo_address.fredric.attributes.city != undefined, geo_address.fredric.attributes.city, "") ]]  
+    - type: "custom:vertical-stack-in-card"
+      cards:
+      - type: vertical-stack
+        cards:
+          - type: picture-entity
+            entity: device_tracker.fredric_fredric
+            image: /local/lovelace/Fredric.jpg
+            show_name: false
+          - type: markdown
+            content: >
+              <h3>Adress</h3>
+              [[ geo_address.fredric_fredric.attributes.road ]] [[ if(geo_address.fredric_fredric.attributes.house_number != undefined, geo_address.fredric_fredric.attributes.house_number, "") ]]
+              [[ if(geo_address.fredric_fredric.attributes.city != undefined, geo_address.fredric_fredric.attributes.city, "") ]]
+              [[ if(geo_address.fredric_fredric.attributes.village != undefined, geo_address.fredric_fredric.attributes.village, "") ]]
+              [[ if(geo_address.fredric_fredric.attributes.county != geo_address.fredric_fredric.attributes.city, geo_address.fredric_fredric.attributes.county, "") ]]  
 ```
 
 In the screen dump above. I've used <a href="https://github.com/custom-cards/vertical-stack-in-card">vertical-stack-in-card</a> to be able to make a tighter fit between the the cards.
 
+## Right now
+The are issues left to figure out, like implementing a better way to do state change tracking. The current way isn't good enough and timed updates is probably not the best way to go around this problem. 
+
+Drop a line if you have suggestions or found bugs :-)
