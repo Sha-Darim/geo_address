@@ -22,7 +22,7 @@ DOMAIN = 'geo_address'
 ENTITY_ID_FORMAT = DOMAIN + '.{}'
 
 CONF_USE_STATE              = "use_state"
-CONF_USE_TIMER              = "use_timer"
+CONF_USE_TIMER              = "use_timed"
 CONF_INTERVAL               = 'update_interval'
 CONF_PERIOD                 = 'update_period'
 CONF_FIELDS_DISPLAY         = 'fields_display'

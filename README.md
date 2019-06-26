@@ -20,9 +20,10 @@ Add this to `configuration.yaml`
 
 ```yaml
 geo_address:
+  use_state: true
+  use_timed: true  
   update_interval: 60
   update_period: 3600
-  use_state: true
 ```
 
 | property | Example | Result
