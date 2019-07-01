@@ -28,6 +28,8 @@ geo_address:
   use_timed: true  
   update_interval: 60
   update_period: 3600
+  excluded_ids: old_device another_device
+  fields_display: road city county
 ```
 
 | property | Example | Result
@@ -36,6 +38,16 @@ geo_address:
 | use_state | `true` | use state change updates
 | update_interval | `60` | how often to check for new position
 | update_period | `3600` | for how long back in time to check for changes
+| excluded_ids | `old_device another device` | entity_ids to exclude from tracking
+| fields_display | `road house_number village city county` | what fields to display (see "fields options" below for options)
+
+If both city and county are added and the value for the both fields are the same only `city` is displayed.
+Default value: `road village city county state postcode country`
+
+### Fields options
+It's hard to make a list of what to find here when the options are limitless.
+There are the common ones `road, house_number, neighbourhood, suburb, village, city, city_district, county, state_district, state, postcode, country, country_code`<br/>
+But you might find more like `hotel, cafe, pedestrian` ... 
 
 
 
