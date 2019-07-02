@@ -28,28 +28,49 @@ geo_address:
   use_timed: true  
   update_interval: 60
   update_period: 3600
-  excluded_ids: old_device another_device
-  fields_display: road city county
+  fields_display: road city county  
+  exclude:
+    entities:
+      - device_tracker.name_name 
+  include:
+    entities:
+      - device_tracker.another_device
 ```
 
-| property | Example | Result
-| ------------ | ------- | ------
-| use_timed | `true` | use timed updates
-| use_state | `true` | use state change updates
-| update_interval | `60` | how often to check for new position
-| update_period | `3600` | for how long back in time to check for changes
-| excluded_ids | `old_device another device` | entity_ids to exclude from tracking
-| fields_display | `road house_number village city county` | what fields to display (see "fields options" below for options)
+| Property | Optional | Comment 
+| -------- | -------- | ------
+| use_timed | `true` |  use timed updates.
+| use_state | `true` |  use state change updates.
+| update_interval | `true` | how often to check for new position.
+| update_period | `true` | for how long back in time to check for changes.
+| fields_display | `true` |  what fields to display (see "fields options" below for options).
+| exclude | `true` | see below.
+| include | `true` | see below.
 
-If both city and county are added and the value for the both fields are the same only `city` is displayed.
-Default value: `road village city county state postcode country`
+Both `use_state` and `use_timed` are optional, but one should be selected to be able to update values.
 
-### Fields options
+### Include or exclude
+```yaml
+exclude:
+  entities:
+    - device_tracker.name_name
+   
+include:
+  entities:
+    - device_tracker.another_device
+```     
+
+You can either `include` the devices you want to track or `exclude` the ones you do not want to track. Only `entities` makes sense here.
+If you would enter the same device in both, it won't be tracked.
+### Fields settings
+
+Default fields_display value: `road village city county state postcode country`
+
 It's hard to make a list of what to find here when the options are limitless.
 There are the common ones `road, house_number, neighbourhood, suburb, village, city, city_district, county, state_district, state, postcode, country, country_code`<br/>
 But you might find more like `hotel, cafe, pedestrian` ... 
 
-
+If both city and county are added and the value for the both fields are the same only `city` is displayed.
 
 ## Implementation
 Example implementation in Lovelace. I've used Thomas Lovéns Lovelace module <a href="https://github.com/thomasloven/lovelace-markdown-mod">lovelace-markdown-mod</a> for this. 
