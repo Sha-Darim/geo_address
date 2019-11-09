@@ -27,7 +27,7 @@ geo_address:
   use_state: true
   use_timed: true  
   update_interval: 60
-  update_period: 3600
+  update_period: 300
   fields_display: road city county  
   exclude:
     entities:

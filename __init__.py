@@ -1,23 +1,16 @@
 from geopy.geocoders import Nominatim
 from datetime import datetime, timedelta, timezone
-import json
 import logging
 import time
-import urllib.request
 import voluptuous as vol
 
-import homeassistant
-from homeassistant.components import device_tracker
 from homeassistant.const import (ATTR_ENTITY_ID, SERVICE_TURN_OFF,
                                  SERVICE_TURN_ON, STATE_OFF, STATE_ON,
                                  CONF_ENTITIES, CONF_EXCLUDE, CONF_INCLUDE)
-from homeassistant.core import State
 import homeassistant.helpers.config_validation as cv
-import homeassistant.helpers.discovery
 from homeassistant.helpers.event import async_call_later, async_track_time_interval, async_track_state_change
-from typing import Any
 
-DEPENDENCIES = ['device_tracker']
+#DEPENDENCIES = ['device_tracker']
 
 DOMAIN = 'geo_address'
 ENTITY_ID_FORMAT = DOMAIN + '.{}'
@@ -53,20 +46,12 @@ async def async_setup(hass, config):
     geoaddress = GeoAddress(hass, config[DOMAIN])
 
     # Make sure there are states for all location_devices
-    async_call_later(hass, 1, geoaddress.create_defaults)
+    async_call_later(hass, 1, geoaddress.post_init)
 
-    # Use timed updates
+    #    # Use timed updates
     if CONF_USE_TIMER in config[DOMAIN] and config[DOMAIN].get(CONF_USE_TIMER) == True:
         _LOGGER.debug('- Using timed updates')
         async_track_time_interval(hass, geoaddress.update_address_time, timedelta(seconds=int(config[DOMAIN].get(CONF_INTERVAL))))
-
-    # Use state update
-    if CONF_USE_STATE in config[DOMAIN] and config[DOMAIN].get(CONF_USE_STATE) == True:
-        _LOGGER.debug('- Using state updates')
-        for tracker_id in geoaddress.ids:
-            async_track_state_change(hass, tracker_id, geoaddress.update_address_state,
-                                     from_state=None, to_state=None)
-            _LOGGER.debug('Added tracker for ' + tracker_id)
 
     return True
 
@@ -83,20 +68,6 @@ class GeoAddress:
 
         self._hass   = hass
         self._config = config
-        self._ids = []
-
-        # Make a list of the tracker ids to follow
-        include = config.get(CONF_INCLUDE, {})
-        exclude = config.get(CONF_EXCLUDE, {})
-        whitelist = set(include.get(CONF_ENTITIES, []))
-        blacklist = set(exclude.get(CONF_ENTITIES, []))
-
-        # If whitelist is configured, use it, else get all device_trackers
-        trackers = whitelist if whitelist else self._hass.states.async_entity_ids("device_tracker")
-
-        for tracker in trackers:
-            if not blacklist or tracker not in blacklist:
-                self._ids.append(tracker)
 
     @property
     def config(self):
@@ -112,39 +83,64 @@ class GeoAddress:
         """ Return the hass instance """
         return self._hass
 
-    @hass.setter
-    def ids(self, hass):
-        self._hass = hass
+    def get_trackers(self):
+        """ Get a list of the tracker ids to follow """
 
-    @property
-    def ids(self):
-        """ Return the list of prepared device_tracker ids """
-        return self._ids
+        include = self.config.get(CONF_INCLUDE, {})
+        exclude = self.config.get(CONF_EXCLUDE, {})
+        whitelist = set(include.get(CONF_ENTITIES, []))
+        blacklist = set(exclude.get(CONF_ENTITIES, []))
 
-    @ids.setter
-    def ids(self, ids):
-        self._ids = ids
+        # If whitelist is configured, use it, else get all device_trackers
+        trackers = whitelist if whitelist else self.hass.states.async_entity_ids("device_tracker")
+        ids = []
+        for tracker in trackers:
+            if not blacklist or tracker not in blacklist:
+                ids.append(tracker)
 
-    def create_defaults(self, time):
-        """ Create default entities """
-        for tracker_id in self.ids:
-            entity_id = ENTITY_ID_FORMAT.format(tracker_id.split('.', 1)[1])
-            state_obj = self.hass.states.get(entity_id)
-            if state_obj is None:
-                self.update_address(tracker_id)
+        _LOGGER.debug("Selected devices: ")
+        _LOGGER.debug(trackers)
+        return ids
+
+    def post_init(self, time):
+        """ Add state change trackers or create default entities """
+
+        ids = self.get_trackers()
+
+        if CONF_USE_STATE in self.config and self.config.get(CONF_USE_STATE) == True:
+            _LOGGER.debug('- Using state updates')
+            for tracker_id in ids:
+                async_track_state_change(self.hass, tracker_id, self.update_address_state,
+                                         from_state=None, to_state=None)
+                _LOGGER.debug('Added tracker for ' + tracker_id)
+
+        else:
+            _LOGGER.debug("CREATING DEFAULTS!")
+            for tracker_id in ids:
+                entity_id = ENTITY_ID_FORMAT.format(tracker_id.split('.', 1)[1])
+                state_obj = self.hass.states.get(entity_id)
+                if state_obj is None:
+                    self.hass.states.set(entity_id, "", None)
+#                   self.update_address(tracker_id)
+
 
     def update_address_time(self, now=None):
-        for tracker_id in self.ids:
+        _LOGGER.debug("Running timed event")
+        ids = self.get_trackers()
+        for tracker_id in ids:
             self.update_address(tracker_id)
+            time.sleep(2)
 
     def update_address_state(self, entity_id, old_state, new_state):
+        _LOGGER.debug("Running state change event")
         self.update_address(entity_id)
 
     def update_address(self, entity_id):
-        _LOGGER.debug("Updating address for " + entity_id)
+        _LOGGER.debug("Trying to update address for " + entity_id)
 
         try:
             state = self.hass.states.get(entity_id)
+
             last_updated = state.last_updated
             now = datetime.now(timezone.utc) - timedelta(seconds=int(self.config.get(CONF_PERIOD)))
 
@@ -170,7 +166,6 @@ class GeoAddress:
 
                 # Set the state
                 self.hass.states.set(entity_id, output, address)
-
                 _LOGGER.debug("Saved new value for " + entity_id)
 
         except Exception as e:
